@@ -267,14 +267,13 @@ namespace Fwk.HelperFunctions
         /// <returns></returns>
         public static string SerializeObjectToJson<T>(object obj)
         {
-            throw new NotImplementedException();
-            //MemoryStream stream1 = new MemoryStream();
-            //System.Runtime.Serialization.Json.DataContractJsonSerializer ser = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(T));
-            //ser.WriteObject(stream1, obj);
+            MemoryStream stream1 = new MemoryStream();
+            System.Runtime.Serialization.Json.DataContractJsonSerializer ser = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(T));
+            ser.WriteObject(stream1, obj);
             
-            //stream1.Position = 0;
-            //StreamReader sr = new StreamReader(stream1);
-            //return sr.ReadToEnd();
+            stream1.Position = 0;
+            StreamReader sr = new StreamReader(stream1);
+            return sr.ReadToEnd();
         }
 
         /// <summary>
@@ -285,14 +284,13 @@ namespace Fwk.HelperFunctions
         /// <returns></returns>
         public static string SerializeObjectToJson(Type objType, object obj)
         {
-            //MemoryStream stream1 = new MemoryStream();
-            //System.Runtime.Serialization.Json.DataContractJsonSerializer ser = new System.Runtime.Serialization.Json.DataContractJsonSerializer(objType);
-            //ser.WriteObject(stream1, obj);
+            MemoryStream stream1 = new MemoryStream();
+            System.Runtime.Serialization.Json.DataContractJsonSerializer ser = new System.Runtime.Serialization.Json.DataContractJsonSerializer(objType);
+            ser.WriteObject(stream1, obj);
 
-            //stream1.Position = 0;
-            //StreamReader sr = new StreamReader(stream1);
-            //return sr.ReadToEnd();
-            throw new NotImplementedException();
+            stream1.Position = 0;
+            StreamReader sr = new StreamReader(stream1);
+            return sr.ReadToEnd();
         }
 
         /// <summary>
@@ -304,13 +302,12 @@ namespace Fwk.HelperFunctions
         public static T DeSerializeObjectFromJson<T>(string json)
         {
             //var instance = Activator.CreateInstance<T>();
-            //using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(json)))
-            //{
-                
-                //var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(T));
-                //(T)serializer.ReadObject(ms);
-            //}
-            throw new NotImplementedException();
+            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(json)))
+            {
+                //var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(instance.GetType());
+                var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(typeof(T));
+                return (T)serializer.ReadObject(ms);
+            }
         }
 
         /// <summary>
@@ -321,12 +318,11 @@ namespace Fwk.HelperFunctions
         /// <returns></returns>
         public static object DeSerializeObjectFromJson(Type objType, string json)
         {
-            throw new NotImplementedException();
-            //using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(json)))
-            //{
-            //    var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(objType);
-            //    return serializer.ReadObject(ms);
-            //}
+            using (var ms = new MemoryStream(Encoding.Unicode.GetBytes(json)))
+            {
+                var serializer = new System.Runtime.Serialization.Json.DataContractJsonSerializer(objType);
+                return serializer.ReadObject(ms);
+            }
         }
 
         /// <summary>

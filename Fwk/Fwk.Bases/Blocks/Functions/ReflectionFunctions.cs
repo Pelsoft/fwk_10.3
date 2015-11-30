@@ -1,6 +1,7 @@
 using System;
 using System.Reflection;
 using System.ComponentModel;
+using Fwk.Exceptions;
 
 namespace Fwk.HelperFunctions
 {
@@ -128,6 +129,7 @@ namespace Fwk.HelperFunctions
         /// <summary>
         /// Crea instancia de un objetos a partir de de su nombre largo y sus parametros.
         /// Efectua load assembly
+        /// </summary>
         /// <param name="pClassName">Nombre de la clase (Type.FullName)</param>
         /// <param name="pAssemblyName">Nombre del ensamblado (Assembly.Name)</param>
         /// <param name="constructorParams">An array of arguments that match in number, order, and type the parameters of the constructor to invoke. 
@@ -147,30 +149,47 @@ namespace Fwk.HelperFunctions
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="pAssemblyString"></param>
+        /// <param name="pAssemblyString">El parametro pAssemblyString espera el siguiente formato : [Namespase.ClassName ,Assembly]</param>
         /// <param name="pClassName"></param>
         /// <param name="pAssembly"></param>
 		private static void ExtractTypeInformation(string pAssemblyString, out string pClassName, out string pAssembly)
 		{
-			// Divide el assemblyString según la coma y guarda el resultado
-			// en un array
-			string[] wParts = GetStringsFromAssemblyString(pAssemblyString);
+            pClassName = String.Empty;
+            pAssembly = String.Empty;
+            TechnicalException te = null;
+            try
+            {
+                // Divide el assemblyString según la coma y guarda el resultado
+                // en un array
+                string[] wParts = GetStringsFromAssemblyString(pAssemblyString);
 
-			// Verifica que el array tenga 2 partes
-			if (wParts.Length < 2)
-			{
-				throw new Exception("Assembly mal configurado.");
-			}
+                // Verifica que el array tenga 2 partes
+                if (wParts.Length < 2)
+                {
+                    te = new TechnicalException("Assembly mal configurado. El parametro pAssemblyString espera el siguiente formato : [Namespase.ClassName ,Assembly]");
+                    ExceptionHelper.SetTechnicalException<ReflectionFunctions>(te);
+                    te.ErrorId = "3000";
+                }
 
-			// Toma las partes del assemblyArray en dos strings separados
-			pClassName = wParts[0].Trim();
-			pAssembly = wParts[1].Trim();
+                // Toma las partes del assemblyArray en dos strings separados
+                pClassName = wParts[0].Trim();
+                pAssembly = wParts[1].Trim();
 
-			// Verifica que el string strNamespaceClass tenga al menos un punto
-			if (pClassName.IndexOf(".") < 0)
-			{
-				throw new Exception("Assembly mal configurado.");
-			}
+                // Verifica que el string strNamespaceClass tenga al menos un punto
+                if (pClassName.IndexOf(".") < 0)
+                {
+                    te = new TechnicalException("Assembly mal configurado. El parametro pAssemblyString espera el siguiente formato : [Namespase.ClassName ,Assembly]");
+                    ExceptionHelper.SetTechnicalException<ReflectionFunctions>(te);
+                    te.ErrorId = "3000";
+                }
+            }
+            catch (Exception ex)
+            {
+
+                te = new TechnicalException("Assembly mal configurado. El parametro pAssemblyString espera el siguiente formato : [Namespase.ClassName ,Assembly]", ex);
+                ExceptionHelper.SetTechnicalException<ReflectionFunctions>(te);
+                te.ErrorId = "3000";
+            }
 		}
 
         /// <summary>
@@ -208,7 +227,7 @@ namespace Fwk.HelperFunctions
         /// <summary>
         /// Crea un tipo dinamicamente a partir del nombre un archivo.-
         /// </summary>
-        /// <param name="pAssemblyString">Concatenacion de ClassName + , + AssemblyName</param>
+        /// <param name="pAssemblyString">Concatenacion de [ClassName,AssemblyName]</param>
         /// <param name="pPath">Ruta del archivo</param>
         /// <returns>Type definido por ClassName</returns>
         static public Type CreateTypeFromFile(string pAssemblyString,String pPath)
@@ -256,12 +275,12 @@ namespace Fwk.HelperFunctions
 
             return (T)wPropValue;
         }
+
         /// <summary>
         /// Retorna el valor de una propiedad.-
         /// Generalmente utilizado cuando el nombre de la propiedad es generada dinamicamente y no se sabe en 
         /// desing time que propiedad sera utilizada de un objeto.-
         /// </summary>
-   
         /// <param name="pSourceObject">Objeto que contiene la propiedad</param>
         /// <param name="pPropertyName">Nombre de la propiedad</param>
         /// <returns>Valor de la propiedad en string</returns>
@@ -320,14 +339,12 @@ namespace Fwk.HelperFunctions
             return (T)wPropValue;
         }
 
-        /// <summary>
+      
         ///  Efectua un mapeo de todas las propiedades de un objeto a otro 
         ///  el mapeo solo lo hace de los atributos del tipo T, esto es debido a que 
         ///  puede pasarce como T una interfaz y los objetos source y destino ser de distinto tipo
-        ///  
-        /// </summary>
         /// <typeparam name="T"></typeparam>
-        /// <param name="spurce"></param>
+        /// <param name="source"></param>
         /// <param name="target"></param>
         public static void MapProperties<T>(T source, ref T target)
         {
